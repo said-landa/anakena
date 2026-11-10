@@ -1,18 +1,23 @@
 use winit::application::ApplicationHandler;
-use winit::event::WindowEvent;
+use winit::event::WindowEvent; //means “the WindowEvent type in the event module of winit.”
 use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::window::{Window, WindowId};
+
+mod renderer;
 
 #[derive(Default)]
 
 struct App { //struct App defines a type that will hold the application’s state between event callbacks.
-    window: Option<Window>, //The App struct then owns the window and keeps it alive between callbacks.
+    window: Option<std::sync::Arc<Window>>, //The App struct then owns the window and keeps it alive between callbacks.
+    renderer: Option<renderer::Renderer>,
 }
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let attributes = Window::default_attributes().with_title("Anakena");
-        let window = event_loop.create_window(attributes).expect("Failed to create window");
+        let window = event_loop.create_window(attributes).expect("Failed to create window"); //opens the OS window and gives you a Window.
+        let window = std::sync::Arc::new(window); //moves that same Window into an Arc<Window> so the app and renderer can share ownership. The new window binding takes over the name. Rust calls this shadowing.
+        self.renderer = Some(pollster::block_on(renderer::Renderer::new(window.clone())));
         self.window = Some(window);
     }
 
