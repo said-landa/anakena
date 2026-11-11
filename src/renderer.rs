@@ -28,6 +28,20 @@ impl Renderer {
             wgpu::CurrentSurfaceTexture::Success(frame) => frame, //On success, extracts the acquired texture and binds it to frame
             wgpu::CurrentSurfaceTexture::Suboptimal(frame) => frame, //Suboptimal still supplies a usable frame, even though the surface settings are out of date.
             _ => return, //_ catches the remaining outcomes. For this first render pass, return skips the draw whenever acquisition supplies no texture.
-        }
+        };
+        let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let mut encoder = self.device.create_command_encoder(&Default::default());
+        let color_attachment = wgpu::RenderPassColorAttachment {
+            view: &view,
+            depth_slice: None,
+            resolve_target: None,
+            ops: wgpu::Operations {
+                load: wgpu::LoadOp::Clear(wgpu::Color::BLUE),
+                store: wgpu::StoreOp::Store,
+            }
+        };
+        let pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            color_attachments: &[Some(color_attachment)],
+        })
     }
 }
