@@ -47,10 +47,13 @@ impl Renderer {
         drop(pass);
         self.queue.submit([encoder.finish()]); //encoder.finish() turns the recorded commands into a command buffer.
         self.queue.present(frame);
-    }<
+    }
     pub(crate) fn resize(&mut self, size: winit::dpi::PhysicalSize<u32>) {
         if size.width == 0 || size.height == 0 {
-
+            return; 
         }
+        self.config.width = size.width;
+        self.config.height = size.height;
+        self.surface.configure(&self.device, &self.config);
     }
 }

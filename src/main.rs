@@ -28,6 +28,9 @@ impl ApplicationHandler for App {
         }
         else if let WindowEvent::RedrawRequested = event && let Some(renderer) = &self.renderer {
             renderer.render()
+        } 
+        else if let WindowEvent::Resized(size) = event && let Some(renderer) = &mut self.renderer {
+            
         }
     }
 }
