@@ -18,12 +18,16 @@ impl ApplicationHandler for App {
         let window = event_loop.create_window(attributes).expect("Failed to create window"); //opens the OS window and gives you a Window.
         let window = std::sync::Arc::new(window); //moves that same Window into an Arc<Window> so the app and renderer can share ownership. The new window binding takes over the name. Rust calls this shadowing.
         self.renderer = Some(pollster::block_on(renderer::Renderer::new(window.clone())));
+        window.request_redraw();
         self.window = Some(window);
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) { //Defines the callback Winit calls when a window receives an event.
         if let WindowEvent::CloseRequested = event {
             event_loop.exit();
+        }
+        else if let WindowEvent::RedrawRequested = event && let Some(renderer) = &self.renderer {
+            renderer.render()
         }
     }
 }

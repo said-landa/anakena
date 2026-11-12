@@ -42,6 +42,15 @@ impl Renderer {
         };
         let pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments: &[Some(color_attachment)],
-        })
+            ..Default::default()
+        });
+        drop(pass);
+        self.queue.submit([encoder.finish()]); //encoder.finish() turns the recorded commands into a command buffer.
+        self.queue.present(frame);
+    }<
+    pub(crate) fn resize(&mut self, size: winit::dpi::PhysicalSize<u32>) {
+        if size.width == 0 || size.height == 0 {
+
+        }
     }
 }
