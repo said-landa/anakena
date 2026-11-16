@@ -30,7 +30,11 @@ impl ApplicationHandler for App {
             renderer.render()
         } 
         else if let WindowEvent::Resized(size) = event && let Some(renderer) = &mut self.renderer {
-            
+            renderer.resize(size);
+            self.window.as_ref().expect("Window missing during resize").request_redraw();
+        }
+        else if let WindowEvent::Occluded(false) = event && let Some(window) = &self.window {
+            window.request_redraw();
         }
     }
 }
