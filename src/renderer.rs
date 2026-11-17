@@ -20,6 +20,14 @@ impl Renderer {
         let config = surface.get_default_config(&adapter, size.width.max(1), size.height.max(1))
             .expect("No supported surface configuration");
         surface.configure(&device, &config); //Applies the configuration so the surface can provide textures for rendering and presentation.
+        let shader = device.create_shader_module(wgpu::include_wgsl!("triangle.wgsl"));
+        let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor { //Starts defining the render pipeline, which tells the GPU which shaders to run and how to write their output.
+            label: Some("Triangle pipeline"), //Gives the pipeline a name that can appear in validation errors and graphics debuggers.
+            layout: None, //Lets wgpu infer the pipeline’s resource layout from the shaders. The triangle shader needs no bound resources.
+            vertex: wgpu::VertexState { //Opens the vertex stage configuration. Next we’ll tell it to run vs_main from the shader module
+
+            }
+        })
         Self { surface, device, queue, config } //Builds the Renderer using the four local variables as fields. This is the method’s final expression, so Rust returns it.
     } 
 
