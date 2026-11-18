@@ -25,7 +25,10 @@ impl Renderer {
             label: Some("Triangle pipeline"), //Gives the pipeline a name that can appear in validation errors and graphics debuggers.
             layout: None, //Lets wgpu infer the pipeline’s resource layout from the shaders. The triangle shader needs no bound resources.
             vertex: wgpu::VertexState { //Opens the vertex stage configuration. Next we’ll tell it to run vs_main from the shader module
-
+                module: &shader,
+                entry_point: Some("vs_main"),
+                compilation_options: Default::default(),
+                buffers: &[],
             }
         })
         Self { surface, device, queue, config } //Builds the Renderer using the four local variables as fields. This is the method’s final expression, so Rust returns it.
