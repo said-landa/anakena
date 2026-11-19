@@ -29,7 +29,10 @@ impl Renderer {
                 entry_point: Some("vs_main"),
                 compilation_options: Default::default(),
                 buffers: &[],
-            }
+            },
+            primitive: Default::default(),
+            depth_stencil: None,
+            multisample: Default::default(),
         })
         Self { surface, device, queue, config } //Builds the Renderer using the four local variables as fields. This is the method’s final expression, so Rust returns it.
     } 
