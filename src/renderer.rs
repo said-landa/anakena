@@ -33,6 +33,14 @@ impl Renderer {
             primitive: Default::default(),
             depth_stencil: None,
             multisample: Default::default(),
+            fragment: Some(wgpu::FragmentState {
+                module: &shader,
+                entry_point: Some("fs_main"),
+                compilation_options: Default::default(),
+                targets: &[Some(wgpu::ColorTargetState {
+                    format: config.format,
+                })]
+            })
         })
         Self { surface, device, queue, config } //Builds the Renderer using the four local variables as fields. This is the method’s final expression, so Rust returns it.
     } 
