@@ -39,6 +39,8 @@ impl Renderer {
                 compilation_options: Default::default(),
                 targets: &[Some(wgpu::ColorTargetState {
                     format: config.format,
+                    blend: None,
+                    write_mask: wgpu::ColorWrites::ALL,
                 })]
             })
         })
