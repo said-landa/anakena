@@ -1,8 +1,17 @@
+use wgpu::util::DeviceExt;
+
+const TRIANGLE_VERTICES: [[f32; 2]; 3] = [
+    [0.0, 0.6],
+    [-0.6, -0.6],
+    [0.6, -0.6],
+];
+
 pub(crate) struct Renderer {
     surface: wgpu::Surface<'static>, //Surface connects the renderer to the window so we can present frames.
     device: wgpu::Device, //evice is our connection to the GPU. We’ll use it to create resources such as textures and to record rendering commands.
     queue: wgpu::Queue, //queue submits those recorded commands to the GPU for execution
     config: wgpu::SurfaceConfiguration, //config stores the surface settings, including its width, height, and pixel format. Keeping it in Renderer lets us update the dimensions when the window resizes.
+    pipeline: wgpu::RenderPipeline,
 }
 
 impl Renderer {
@@ -20,6 +29,9 @@ impl Renderer {
         let config = surface.get_default_config(&adapter, size.width.max(1), size.height.max(1))
             .expect("No supported surface configuration");
         surface.configure(&device, &config); //Applies the configuration so the surface can provide textures for rendering and presentation.
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            
+        })
         let shader = device.create_shader_module(wgpu::include_wgsl!("triangle.wgsl"));
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor { //Starts defining the render pipeline, which tells the GPU which shaders to run and how to write their output.
             label: Some("Triangle pipeline"), //Gives the pipeline a name that can appear in validation errors and graphics debuggers.
@@ -42,9 +54,11 @@ impl Renderer {
                     blend: None,
                     write_mask: wgpu::ColorWrites::ALL,
                 })]
-            })
-        })
-        Self { surface, device, queue, config } //Builds the Renderer using the four local variables as fields. This is the method’s final expression, so Rust returns it.
+            }),
+            multiview_mask: None,
+            cache: None,
+        });
+        Self { surface, device, queue, config, pipeline } //Builds the Renderer using the four local variables as fields. This is the method’s final expression, so Rust returns it.
     } 
 
     pub(crate) fn render(&self) { //A crate is a unit of Rust code that the compiler builds into an executable or a library.
@@ -64,10 +78,12 @@ impl Renderer {
                 store: wgpu::StoreOp::Store,
             }
         };
-        let pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments: &[Some(color_attachment)],
             ..Default::default()
         });
+        pass.set_pipeline(&self.pipeline);
+        pass.draw(0..3, 0..1);
         drop(pass);
         self.queue.submit([encoder.finish()]); //encoder.finish() turns the recorded commands into a command buffer.
         self.queue.present(frame);
