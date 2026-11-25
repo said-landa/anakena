@@ -30,7 +30,7 @@ impl Renderer {
             .expect("No supported surface configuration");
         surface.configure(&device, &config); //Applies the configuration so the surface can provide textures for rendering and presentation.
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            
+            label: Some("Triangle vertex buffer"),
         })
         let shader = device.create_shader_module(wgpu::include_wgsl!("triangle.wgsl"));
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor { //Starts defining the render pipeline, which tells the GPU which shaders to run and how to write their output.
