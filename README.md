@@ -1,6 +1,6 @@
 # Anakena
 
-Anakena is a conversation-driven 3D game in development for iPhone and PC. It brings players into interactive stories set in realistic places around the world, where they speak with lifelike AI characters and make choices that shape how the story ends.
+Anakena is a conversation-driven 3D game in development for iOS and Android. It brings players into interactive stories set in realistic places around the world, where they speak with lifelike AI characters and make choices that shape how the story ends.
 
 ## Playing a story
 

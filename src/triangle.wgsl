@@ -1,12 +1,8 @@
-@vertex
-fn vs_main(@builtin(vertex_index) index: u32) -> @builtin(position) vec4<f32> {
-    let positions = array<vec2<f32>, 3>(
-        vec2<f32>(0.0, 0.6),
-        vec2<f32>(-0.6, -0.6),
-        vec2<f32>(0.6, -0.6),
-    );
+@group(0) @binding(0) var<uniform> transform: mat4x4<f32>;
 
-    return vec4<f32>(positions[index], 0.0, 1.0);
+@vertex
+fn vs_main(@location(0) position: vec3<f32>) -> @builtin(position) vec4<f32> {
+   return vec4<f32>(position, 1.0);
 }
 
 @fragment

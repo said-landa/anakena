@@ -1,10 +1,14 @@
 use wgpu::util::DeviceExt;
 
-const TRIANGLE_VERTICES: [[f32; 2]; 3] = [
-    [0.0, 0.6],
-    [-0.6, -0.6],
-    [0.6, -0.6],
+const TRIANGLE_VERTICES: [[f32; 3]; 3] = [
+    [0.0, 0.6, 0.0],
+    [-0.6, -0.6, 0.0],
+    [0.6, -0.6, 0.0],
 ];
+
+const IDENTITY_TRANSFORM: [[f32; 4]; 4] = [
+    [1.0, 0.0, 0.0, 0.0],
+]
 
 pub(crate) struct Renderer {
     surface: wgpu::Surface<'static>, //Surface connects the renderer to the window so we can present frames.
@@ -12,6 +16,7 @@ pub(crate) struct Renderer {
     queue: wgpu::Queue, //queue submits those recorded commands to the GPU for execution
     config: wgpu::SurfaceConfiguration, //config stores the surface settings, including its width, height, and pixel format. Keeping it in Renderer lets us update the dimensions when the window resizes.
     pipeline: wgpu::RenderPipeline,
+    vertex_buffer: wgpu::Buffer,    
 }
 
 impl Renderer {
@@ -31,7 +36,9 @@ impl Renderer {
         surface.configure(&device, &config); //Applies the configuration so the surface can provide textures for rendering and presentation.
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Triangle vertex buffer"),
-        })
+            contents: bytemuck::cast_slice(&TRIANGLE_VERTICES),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
         let shader = device.create_shader_module(wgpu::include_wgsl!("triangle.wgsl"));
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor { //Starts defining the render pipeline, which tells the GPU which shaders to run and how to write their output.
             label: Some("Triangle pipeline"), //Gives the pipeline a name that can appear in validation errors and graphics debuggers.
@@ -40,7 +47,11 @@ impl Renderer {
                 module: &shader,
                 entry_point: Some("vs_main"),
                 compilation_options: Default::default(),
-                buffers: &[],
+                buffers: &[Some(wgpu::VertexBufferLayout {
+                    array_stride: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                    step_mode: wgpu::VertexStepMode::Vertex,
+                    attributes: &wgpu::vertex_attr_array![0 => Float32x3],
+                })],
             },
             primitive: Default::default(),
             depth_stencil: None,
@@ -58,7 +69,7 @@ impl Renderer {
             multiview_mask: None,
             cache: None,
         });
-        Self { surface, device, queue, config, pipeline } //Builds the Renderer using the four local variables as fields. This is the method’s final expression, so Rust returns it.
+        Self { surface, device, queue, config, pipeline, vertex_buffer } //Builds the Renderer using the four local variables as fields. This is the method’s final expression, so Rust returns it.
     } 
 
     pub(crate) fn render(&self) { //A crate is a unit of Rust code that the compiler builds into an executable or a library.
@@ -83,6 +94,7 @@ impl Renderer {
             ..Default::default()
         });
         pass.set_pipeline(&self.pipeline);
+        pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         pass.draw(0..3, 0..1);
         drop(pass);
         self.queue.submit([encoder.finish()]); //encoder.finish() turns the recorded commands into a command buffer.
