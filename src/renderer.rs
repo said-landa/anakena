@@ -8,7 +8,10 @@ const TRIANGLE_VERTICES: [[f32; 3]; 3] = [
 
 const IDENTITY_TRANSFORM: [[f32; 4]; 4] = [
     [1.0, 0.0, 0.0, 0.0],
-]
+    [0.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0, 0.0],
+    [0.0, 0.0, 0.0, 1.0],
+];
 
 pub(crate) struct Renderer {
     surface: wgpu::Surface<'static>, //Surface connects the renderer to the window so we can present frames.
@@ -39,6 +42,9 @@ impl Renderer {
             contents: bytemuck::cast_slice(&TRIANGLE_VERTICES),
             usage: wgpu::BufferUsages::VERTEX,
         });
+        let transform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Transform uniform buffer"),
+        })
         let shader = device.create_shader_module(wgpu::include_wgsl!("triangle.wgsl"));
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor { //Starts defining the render pipeline, which tells the GPU which shaders to run and how to write their output.
             label: Some("Triangle pipeline"), //Gives the pipeline a name that can appear in validation errors and graphics debuggers.
